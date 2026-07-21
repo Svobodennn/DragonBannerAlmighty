@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net472</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <Platforms>x64</Platforms>
+        <AssemblyName>DragonBannerAlmighty</AssemblyName>
+        <RootNamespace>DragonBannerAlmighty</RootNamespace>
+        <Configurations>Debug;Release</Configurations>
+        <!-- The game supplies these assemblies at runtime; never copy them out. -->
+        <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+        <!-- Game version we compile against. Runs on this version and newer 1.4.x. -->
+        <GameVersion>1.4.5.115026</GameVersion>
+        <!-- Where the ready-to-use module folder is assembled. -->
+        <ModuleId>DragonBannerAlmighty</ModuleId>
+        <ModuleOut>$(MSBuildProjectDirectory)/dist/Modules/$(ModuleId)</ModuleOut>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- TaleWorlds API (metadata only; not shipped). Core package carries
+             TaleWorlds.Core / TaleWorlds.CampaignSystem / TaleWorlds.MountAndBlade
+             (+ *.ViewModelCollection). -->
+        <PackageReference Include="Bannerlord.ReferenceAssemblies.Core" Version="$(GameVersion)" PrivateAssets="all" />
+
+        <!-- Sandbox campaign models we Postfix (SandBox.GameComponents.Sandbox*Model) live in
+             SandBox.dll. Metadata only; provided at runtime by the Sandbox module. -->
+        <PackageReference Include="Bannerlord.ReferenceAssemblies.SandBox" Version="$(GameVersion)" PrivateAssets="all" />
+
+        <!-- Provided at runtime by the respective modules -> compile-only. -->
+        <PackageReference Include="Lib.Harmony" Version="2.4.2" IncludeAssets="compile" />
+        <PackageReference Include="Bannerlord.MCM" Version="5.11.3" IncludeAssets="compile" />
+    </ItemGroup>
+
+    <!-- Allow building the net472 target on macOS/Linux (like the Diplomacy repo does). -->
+    <ItemGroup Condition="'$(OS)' != 'Windows_NT'">
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <!-- Assemble a drop-in Modules/DragonBannerAlmighty folder after every build. -->
+    <Target Name="AssembleModule" AfterTargets="Build">
+        <MakeDir Directories="$(ModuleOut);$(ModuleOut)/bin/Win64_Shipping_Client" />
+        <Copy SourceFiles="$(MSBuildProjectDirectory)/_Module/SubModule.xml" DestinationFolder="$(ModuleOut)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(ModuleOut)/bin/Win64_Shipping_Client" />
+        <Message Importance="high" Text="Module assembled -> $(ModuleOut)" />
+    </Target>
+
+</Project>
