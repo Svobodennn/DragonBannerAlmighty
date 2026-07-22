@@ -4,6 +4,8 @@ A small Mount & Blade II: Bannerlord mod that makes the legendary **Dragon Banne
 (`dragon_banner`) grant **every vanilla banner effect at once**, with the strength of each
 effect adjustable in-game via MCM.
 
+**📥 Download on [Nexus Mods](https://www.nexusmods.com/mountandblade2bannerlord/mods/12238)**
+
 ## What it does
 
 In vanilla a banner item can only carry a *single* banner effect, and the quest Dragon Banner
