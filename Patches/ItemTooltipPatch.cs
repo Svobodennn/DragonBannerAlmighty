@@ -19,34 +19,41 @@ namespace DragonBannerAlmighty.Patches
     [HarmonyPatch(typeof(ItemMenuVM), "RefreshItemTooltips")]
     internal static class ItemMenuTooltipPatch
     {
-        private static void Postfix(ItemMenuVM __instance, ItemVM item)
+        private static void Postfix(ItemMenuVM __instance, ItemVM item, ItemVM comparedItem)
         {
             try
             {
-                if (__instance == null || item == null)
-                    return;
-
-                var itemObj = item.ItemRosterElement.EquipmentElement.Item;
-                if (itemObj == null || itemObj.StringId != DragonBanner.ItemId)
+                if (__instance == null)
                     return;
 
                 var settings = Settings.Instance;
                 if (settings == null || !settings.MasterEnabled)
                     return;
 
-                var list = __instance.TargetItemProperties;
-                if (list == null)
-                    return;
-
-                list.Add(NewProperty(" ", " "));
-                list.Add(NewProperty("Dragon Banner Almighty", " "));
-                foreach (var line in DragonBannerTooltip.BuildLines(settings))
-                    list.Add(NewProperty(line.Key, line.Value));
+                // Fill BOTH the hovered column and the compared (equipped) column, so the Dragon
+                // Banner's effects show whether it's the item you hover or the one already equipped.
+                Append(item, __instance.TargetItemProperties, settings);
+                Append(comparedItem, __instance.ComparedItemProperties, settings);
             }
             catch
             {
                 // A cosmetic tooltip must never break gameplay.
             }
+        }
+
+        private static void Append(ItemVM? vm, MBBindingList<ItemMenuTooltipPropertyVM>? list, Settings settings)
+        {
+            if (vm == null || list == null)
+                return;
+
+            var itemObj = vm.ItemRosterElement.EquipmentElement.Item;
+            if (itemObj == null || itemObj.StringId != DragonBanner.ItemId)
+                return;
+
+            list.Add(NewProperty(" ", " "));
+            list.Add(NewProperty("Dragon Banner Almighty", " "));
+            foreach (var line in DragonBannerTooltip.BuildLines(settings))
+                list.Add(NewProperty(line.Key, line.Value));
         }
 
         private static ItemMenuTooltipPropertyVM NewProperty(string definition, string value)

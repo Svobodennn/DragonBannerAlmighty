@@ -2,7 +2,7 @@
 <Module>
     <Name value="Dragon Banner Almighty" />
     <Id value="DragonBannerAlmighty" />
-    <Version value="v1.0.0" />
+    <Version value="v1.0.1" />
     <ModuleType value="Community" />
     <Official value="false" />
     <DefaultModule value="false" />
